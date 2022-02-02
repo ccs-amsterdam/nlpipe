@@ -94,7 +94,7 @@ NLPipe provides a client to communicate with the server. To use it, do e.g.
 ```{sh}
 $ env/bin/python -m nlpipe.Clients.client http://localhost:5001 test_upper process "this is a test"
 0x54b0c58c7ce9f2a8b551351102ee0938
-$ -m nlpipe.Clients.client http://localhost:5001 test_upper doc_status 0x54b0c58c7ce9f2a8b551351102ee0938
+$ env/bin/python -m nlpipe.Clients.client http://localhost:5001 test_upper doc_status 0x54b0c58c7ce9f2a8b551351102ee0938
 DONE
 $ env/bin/python -m nlpipe.Clients.client http://localhost:5001 test_upper result 0x54b0c58c7ce9f2a8b551351102ee0938
 THIS IS A TEST

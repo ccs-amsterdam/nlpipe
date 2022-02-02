@@ -28,7 +28,7 @@ class CoreNLPBase(Tool):  # base class for coreNLP (implements the generic funct
         if "http://nlp.stanford.edu/software/corenlp.shtml" not in res.text:
             raise Exception("Unexpected answer at {self.server}".format(**locals()))
 
-    def process(self, text):
+    def process(self, text, **kwargs):
         query = urlencode({"properties": json.dumps(self.properties)})  # create the properties as a url encoder
         url = "{self.server}/?{query}".format(**locals())  # add properties in the url
         res = requests.post(url, data=text.encode("utf-8"))  # post request

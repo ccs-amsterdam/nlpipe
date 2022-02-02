@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setup(
     name="nlpipe",
-    version="0.55",
+    version="0.56",
     description="Simple NLP Pipelinining based on a file system",
     authors=["Wouter van Atteveldt", "Farzam Fanitabasi"],
     author_email="wouter@vanatteveldt.com",
@@ -28,6 +28,8 @@ setup(
         "PyJWT",
         "pytest",
         "pytest-flask",
-        "peewee"
+        "peewee",
+        "spacy",
+        "spacy-udpipe"
     ]
 )

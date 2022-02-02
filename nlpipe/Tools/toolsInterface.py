@@ -13,7 +13,7 @@ class Tool(object):
         """Check the status of this module and return an error if not available (e.g. service or tool not found)"""
         raise NotImplementedError()
 
-    def process(self, text):
+    def process(self, text, language_model):
         """Process the given text and return the result"""
         raise NotImplementedError()
 

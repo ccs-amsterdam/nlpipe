@@ -33,7 +33,7 @@ class Newsreader(Tool):
         if r.status_code != 200:
             raise Exception("No newsreader server found at {newsreader_server}".format(**locals()))
 
-    def process(self, text):
+    def process(self, text, **kwargs):
         newsreader_server = os.environ.get('NEWSREADER_SERVER', 'http://localhost:5002')
         url = "{newsreader_server}/newsreader".format(**locals())
         body = {"text": text}

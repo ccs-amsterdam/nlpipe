@@ -39,7 +39,7 @@ class AlpinoParser(Tool):
             if r.status_code != 200:
                 raise Exception("No server found at {alpino_server} and ALPINO_HOME not set".format(**locals()))
 
-    def process(self, text):  # process the test using alpino
+    def process(self, text, **kwargs):  # process the test using alpino
         if 'ALPINO_HOME' in os.environ:  # run using command line (not using server API)
             tokens = tokenize(text)  # tokenize the text
             return parse_raw(tokens)

@@ -50,7 +50,7 @@ class FrogLemmatizer(Tool):
                 yield sent, offset, word, lemma, morphofeat, ner, chunk
                 offset += len(word)
 
-    def process(self, text):
+    def process(self, text, **kwargs):
         s = StringIO()
         w = csv.writer(s)
         w.writerow(["sentence", "offset", "word", "lemma", "morphofeat", "ner", "chunk"])

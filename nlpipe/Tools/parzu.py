@@ -28,7 +28,7 @@ class ParzuClient(Tool):
         if r.status_code != 200:
             raise Exception("No server found at {parzu_server}".format(**locals()))
 
-    def process(self, text):
+    def process(self, text, **kwargs):
         parzu_server = os.environ.get('PARZU_SERVER', 'http://localhost:5003')
         url = "{parzu_server}/parse/".format(**locals())
         data = {"text": text}

@@ -30,7 +30,7 @@ class AlpinoClient(object):
         if r.status_code != 200:
             raise Exception("No server found at {alpino_server}".format(**locals()))
 
-    def process(self, text):
+    def process(self, text, **kwargs):
         modules = ",".join(self.modules)
         alpino_server = os.environ.get('ALPINO_SERVER', 'http://localhost:5002')
         url = "{alpino_server}/parse/{modules}".format(**locals())
