@@ -10,8 +10,10 @@ nlpipe/Tools/alpino.py
 nlpipe/Tools/alpinonaf.py
 nlpipe/Tools/coreNLP.py
 nlpipe/Tools/frog.py
+nlpipe/Tools/gensim.py
 nlpipe/Tools/newsreader.py
 nlpipe/Tools/parzu.py
 nlpipe/Tools/test_upper.py
 nlpipe/Tools/toolsInterface.py
+nlpipe/Tools/udpipe.py
 nlpipe/Workers/worker.py

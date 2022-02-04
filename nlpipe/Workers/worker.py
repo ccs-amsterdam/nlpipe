@@ -19,7 +19,7 @@ class Worker(Process):
 
     sleep_timeout = 5  # check the tasks every 5 seconds
 
-    def __init__(self, client, tool, lang_model=None, quit=False):
+    def __init__(self, client, tool, args=None, quit=False):
         """
         :param client: a Client object to connect to the NLP Server (e.g., HTTP Client)
         :param tool: The module to perform work on
@@ -28,7 +28,7 @@ class Worker(Process):
         super().__init__()
         self.client = client
         self.tool = tool
-        self.lang_model = lang_model
+        self.arguments = args
         self.quit = quit
 
     def run(self):
@@ -42,7 +42,7 @@ class Worker(Process):
                 continue
             logging.info("Received task {self.tool.name}/{doc_id} ({n} bytes)".format(n=len(doc), **locals()))
             try:
-                result = self.tool.process(doc, self.lang_model)
+                result = self.tool.process(doc, additional_arguments=self.arguments)
                 self.client.store_result(self.tool.name, doc_id, result)
                 logging.debug("Successfully completed task {self.tool.name}/{doc_id} ({n} bytes)"
                               .format(n=len(result), **locals()))
@@ -63,14 +63,14 @@ def _import(name):
     return result
 
 
-def run_workers(client: Client, tools: Iterable[str], lang_model: str = None, nprocesses: int = 1, quit: bool = False) -> Iterable[Worker]:
+def run_workers(client: Client, tools: Iterable[str], nprocesses: int = 1, quit: bool = False, additional_arguments=None) -> Iterable[Worker]:
     """
     Run the given workers as separate processes
     :param client: a nlpipe.Clients.ClientInterface object
     :param tools: names of the tools (tools name or fully qualified class name)
-    :param lang_model: optional language model in case the tool requires it (e.g., udpipe)
     :param nprocesses: Number of processes per tool
     :param quit: If True, workers stop when no jobs are present; if False, they poll the server every second.
+    :param additional_arguments: other arguments passed in
     """
     # import built-in workers
     # import nlpipe.modules
@@ -83,9 +83,9 @@ def run_workers(client: Client, tools: Iterable[str], lang_model: str = None, np
             tool = get_tool(tool_class)
         for i in range(1, nprocesses + 1):
             logging.debug("[{i}/{nprocesses}] Starting worker {tool}".format(**locals()))
-            if lang_model is not None:
+            if hasattr(additional_arguments, 'lang_model'):
                 logging.debug("selected language model: {lang_model}".format(**locals()))
-            Worker(client=client, tool=tool, lang_model=lang_model, quit=quit).start()
+            Worker(client=client, tool=tool, args=additional_arguments, quit=quit).start()
         result.append(tool)
 
     logging.info("Workers active and waiting for input")
@@ -112,4 +112,4 @@ if __name__ == '__main__':
 
     client = client.get_client(args.server, token=args.token)
 
-    run_workers(client, args.tools, lang_model=args.language_model, nprocesses=args.processes, quit=args.quit)
+    run_workers(client, args.tools, nprocesses=args.processes, quit=args.quit, additional_arguments=args)

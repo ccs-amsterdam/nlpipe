@@ -12,7 +12,7 @@ class TestUpper(Tool):
     def check_status(self):
         pass
 
-    def process(self, text, **kwargs):
+    def process(self, text, additional_arguments):
         return text.upper()  # converts text to uppercase
 
     def convert(self, doc_id, result, return_format):

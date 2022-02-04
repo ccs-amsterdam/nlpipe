@@ -20,8 +20,8 @@ class Udpipe(Tool):
     def check_status(self):
         pass
 
-    def process(self, text, lm):
-        return _call_udpipe(text, lm)
+    def process(self, text, additional_arguments):
+        return _call_udpipe(text, lm=additional_arguments.language_model)
 
     def convert(self, doc_id, result, return_format):
         if return_format == "json":
