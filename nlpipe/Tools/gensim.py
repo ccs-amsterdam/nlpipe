@@ -10,9 +10,10 @@ no human input is necessary – you only need a corpus of plain text documents.
 """
 
 from nlpipe.Tools.toolsInterface import Tool
-from gensim.models import LdaMulticore, TfidfModel, CoherenceModel
+from gensim.models import LdaMulticore, TfidfModel, CoherenceModel, Word2Vec, FastText, Doc2Vec
 from gensim.corpora import Dictionary  # create the dictionary/vocabulary from the data
 from gensim.models.phrases import Phrases
+from gensim.utils import tokenize
 import multiprocessing  # to speed things up by parallelizing
 import json
 import logging
@@ -31,19 +32,23 @@ class Gensim(Tool):
 
     def set_args(self, additional_arguments):
         self.args = {
-            'min_count': 5,
-            'threshold': 1,
-            'no_below': 50,
-            'no_above': 0.3,
-            'dev_size': 15000,
-            'min_num_topics': 2,
-            'max_num_topics': 4,
-            'model_scoring': 'u_mass'  # others can be "c_v"
+            'min_count': additional_arguments.min_count,
+            'threshold': additional_arguments.threshold,
+            'no_below': additional_arguments.no_below,
+            'no_above': additional_arguments.no_above,
+            'dev_size': additional_arguments.devsize,
+            'min_num_topics': additional_arguments.min_num_topics,
+            'max_num_topics': additional_arguments.max_num_topics,
+            'model_scoring': additional_arguments.model_scoring  # others can be "c_v"
         }
 
     def process(self, text, additional_arguments):
-        self.set_args(additional_arguments)
-        return _call_gensim(text, self.args)
+        if hasattr(additional_arguments, "embedding_method"):
+            model = get_word_embeddings(text, method=additional_arguments.embedding_method)
+            return generate_csv_format(np.column_stack((model.wv.vectors, model.wv.index_to_key)))
+        else:
+            self.set_args(additional_arguments)
+            return _call_gensim(text, self.args)
 
     def convert(self, doc_id, result, return_format):
         if return_format == "json":
@@ -157,6 +162,18 @@ def generate_csv_format(res):
     w.writerow(res)
 
     return s.getvalue()
+
+
+def get_word_embeddings(text, method):
+    tokens = [text.split(" ")]
+    if method == "Word2vec":
+        return (Word2Vec(tokens, vector_size=300, window=5, min_count=1, workers=-1, epochs=10))
+
+    elif method == "FastText":
+        model = FastText(vector_size=300, window=5, min_count=1)
+        model.build_vocab(corpus_iterable=tokens)
+        model.train(corpus_iterable=tokens, total_examples=len(tokens), epochs=10)
+        return model
 
 
 Gensim.register()  # register the tool in known_tools

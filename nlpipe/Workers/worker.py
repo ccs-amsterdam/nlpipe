@@ -98,12 +98,27 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("server", help="Server hostname or directory location")
     parser.add_argument("tools", nargs="+", help="Class names of tool(s) to run")
-    parser.add_argument("--language_model", "-L", help="Optional language model", type=str, default=None)
     parser.add_argument("--verbose", "-v", help="Verbose (debug) output", action="store_true", default=False)
     parser.add_argument("--processes", "-p", help="Number of processes per worker", type=int, default=1)
     parser.add_argument("--quit", "-q", help="Quit if no jobs are available", action="store_true", default=False)
     parser.add_argument("--token", "-t", help="Provide auth token"
                                               "(default reads ./.nlpipe_token or NLPIPE_TOKEN")
+
+    # for udpipe
+    parser.add_argument("--language_model", "-L", help="Optional language model", type=str, default=None)
+
+    # for gensim embedding
+    parser.add_argument("--embedding_method", help="Optional embedding method", type=str)
+
+    # for gensim topic modelling
+    parser.add_argument("--min_count", help="Optional min_count for phrases", type=str, default=5)
+    parser.add_argument("--threshold", help="Optional threshold for phrases", type=str, default=1)
+    parser.add_argument("--no_below", help="Optional minimum occurrence for rare words", type=str, default=50)
+    parser.add_argument("--no_above", help="Optional maximum portion for common words", type=str, default=0.3)
+    parser.add_argument("--devsize", help="Optional number of documents in corpus to use", type=str, default=10000)
+    parser.add_argument("--min_num_topics", help="Optional minimum number of topics", type=str, default=2)
+    parser.add_argument("--max_num_topics", help="Optional maximum number of topics", type=str, default=4)
+    parser.add_argument("--model_scoring", help="Optional scoring topic models", type=str, default="u_mass")
 
     args = parser.parse_args()
 

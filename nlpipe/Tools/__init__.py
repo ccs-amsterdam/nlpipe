@@ -1,1 +1,1 @@
-from . import test_upper, alpino, alpinonaf, coreNLP, frog, newsreader, parzu, udpipe, gensim  # forces the tools to register themselves
+from . import test_upper, alpino, alpinonaf, coreNLP, frog, newsreader, parzu, udpipe, gensim, spacy  # forces the tools to register themselves
