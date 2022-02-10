@@ -2,7 +2,8 @@ import json, logging
 from functools import wraps
 from flask import Blueprint, request, make_response, Response, jsonify
 from flask.templating import render_template
-from nlpipe.TaskManagers.DatabaseTaskManager import Task
+from nlpipe.Tasks.TaskManager import TaskManager
+from nlpipe.Tasks.DatabaseTaskManager import Task
 from nlpipe.Tools.toolsInterface import UnknownModuleError, get_tool, known_tools
 from nlpipe.Servers.helpers import STATUS_CODES, ERROR_MIME, do_check_auth, LoginFailed
 
@@ -58,10 +59,13 @@ def post_task(tool):
         return str(e), 404
 
     doc = request.get_data().decode('UTF-8')  # get the document
-    task_id = Task.insert({'tool': tool, 'status': "PENDING"}).execute()  # adding the task to db
+    # task_id, doc_id = TaskManager.process()
+
+    task_id = Task.insert({'tool': tool, 'status': "STARTED"}).execute()  # adding the task to db
     doc_id = app_restServer.docStorageModule.process(tool,
                                                      doc, doc_id=request.args.get("doc_ic"),  # in case it is given
                                                      task_id=task_id)  # stores the doc, and if needed generates the id
+
     resp = Response(doc_id + "\n", status=202)  # create a response object
     resp.headers['Location'] = '/api/tools/{tool}/{doc_id}'.format(**locals())  # endpoint to access doc
     resp.headers['TASK_ID'] = task_id  # add task_id to the response header

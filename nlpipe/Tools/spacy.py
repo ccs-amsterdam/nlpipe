@@ -19,7 +19,7 @@ class SpaCy(Tool):
         pass
 
     def process(self, text, additional_arguments):
-        return _call_spacy(text, lm=additional_arguments.language_model)
+        return _call_spacy(text=text, lm=additional_arguments.language_model, field=additional_arguments.field)
 
     def convert(self, doc_id, result, return_format):
         if return_format == "json":
@@ -27,7 +27,7 @@ class SpaCy(Tool):
         super().convert(result, return_format)
 
 
-def _call_spacy(text, lm):
+def _call_spacy(text, lm, field=None):
     """
     Call spacy on the text and return annotations
     """
@@ -39,20 +39,30 @@ def _call_spacy(text, lm):
     logging.debug("Creating spacy_udpipe object")
     doc = nlp(text)
 
-    s = StringIO()
-    w = csv.writer(s)
-    w.writerow(["text", "orth", "lemma", "pos", "dep", "tag"])
-    logging.debug("writing values")
-    for token in doc:
-        w.writerow([token.text, token.lang_, token.left_edge, token.right_edge, token.ent_type_,
-                    token.lemma_, token.morph, token.pos_, token.dep_])
-
-    return s.getvalue()
+    return generate_cvs_format(doc, field)
 
 
 def check_language_model(lm):
     if not spacy.util.is_package(lm):
         subprocess.check_call([sys.executable, "-m", "spacy", "download", lm])
+
+
+def generate_cvs_format(doc, field=None):
+    s = StringIO()
+    w = csv.writer(s)
+
+    logging.debug("writing values")
+    if field is not None:
+        w.writerow([field])
+        for token in doc:
+            w.writerow([token.__getattribute__(field)])
+    else:
+        w.writerow(["text", "lang_", "left_edge", "right_edge", "ent_type_", "lemma_", "morph", "pos_", "dep_"])
+        for token in doc:
+            w.writerow([token.text, token.lang_, token.left_edge, token.right_edge, token.ent_type_,
+                        token.lemma_, token.morph, token.pos_, token.dep_])
+
+    return s.getvalue()
 
 
 SpaCy.register()  # register the tool in known_tools

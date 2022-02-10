@@ -3,7 +3,7 @@ import errno
 import logging
 import subprocess
 
-from nlpipe.TaskManagers.DatabaseTaskManager import Docs
+from nlpipe.Tasks.DatabaseTaskManager import Docs
 
 from nlpipe.Tools.toolsInterface import get_tool, get_known_tools
 from nlpipe.Utils.utils import STATUS, get_id

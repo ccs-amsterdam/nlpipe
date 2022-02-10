@@ -104,8 +104,9 @@ if __name__ == '__main__':
     parser.add_argument("--token", "-t", help="Provide auth token"
                                               "(default reads ./.nlpipe_token or NLPIPE_TOKEN")
 
-    # for udpipe
-    parser.add_argument("--language_model", "-L", help="Optional language model", type=str, default=None)
+    # for udpipe or spacy
+    parser.add_argument("--language_model", "-L", help="Optional language model", type=str)
+    parser.add_argument("--field", help="Optional requested field from parser (e.g.: pos_", type=str)
 
     # for gensim embedding
     parser.add_argument("--embedding_method", help="Optional embedding method", type=str)

@@ -5,7 +5,7 @@ import argparse
 import tempfile
 from flask import Flask
 from flask_cors import CORS
-from nlpipe.TaskManagers.DatabaseTaskManager import initialize_if_needed
+from nlpipe.Tasks.DatabaseTaskManager import initialize_if_needed
 from nlpipe.Servers.helpers import get_token
 from nlpipe.Servers.Storage.FileSystemStorage import FileSystemStorage
 from nlpipe.Tools.toolsInterface import known_tools
