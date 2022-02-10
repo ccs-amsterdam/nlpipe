@@ -7,6 +7,7 @@ class UnknownModuleError(ValueError):
 
 class Tool(object):
     """Abstract base class for NLPipe modules"""
+    # WvA This is an interface I can understand :D
     name = None
 
     def check_status(self):

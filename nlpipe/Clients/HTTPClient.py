@@ -48,9 +48,12 @@ class HTTPClient(Client):
         :param doc_id: id of the document
         :return: status of the document (e.g., PENDING, STARTED, DONE, ERROR)
         """
+        # WvA this method has a docstring and type hints, but many below don't
         url = "{self.server}/api/tools/{tool}/{doc_id}".format(**locals())  # endpoint
+        # WvA is there any reason to not use f-strings?
         res = self.head(url)  # get the status
         if res.status_code == 403:
+            # WvA shouldn't self.request just do r.raise_for_status()?
             raise Exception("403 Forbidden, please provide a token")
         if 'Status' in res.headers:
             return res.headers['Status']
@@ -70,6 +73,7 @@ class HTTPClient(Client):
         url = "{self.server}/api/tools/{tool}/".format(**locals())  # endpoint
         if doc_id is not None:
             url = "{url}?doc_id={doc_id}".format(**locals())
+            # WvA is't it weird to mix url params iun POST requests? I would rather expect a json body
         res = self.post(url, data=doc.encode("utf-8"))  # POST document for processing
         if res.status_code != 202:
             raise Exception("Error on processing doc with {tool}; return code: {res.status_code}:\n{res.text}"
@@ -87,6 +91,7 @@ class HTTPClient(Client):
         """
         url = "{self.server}/api/tools/{tool}/{doc_id}".format(**locals())  # endpoint
         if return_format is not None:
+            # WvA I think get(.) allows for structured parameters rather than adding them to the url yourself
             url = "{url}?return_format={return_format}".format(**locals())
         res = self.get(url)  # get the result
         if res.status_code != 200:
@@ -130,13 +135,13 @@ class HTTPClient(Client):
 
     def store_error(self, tool, doc_id, result):
         """
-                Sends the error of the NLP processing on the document to the server
+        Sends the error of the NLP processing on the document to the server
 
-                :param tool: name of the specific NLP tool
-                :param doc_id: id of the document
-                :param result: processed text (with error)
-                :return: -
-                """
+        :param tool: name of the specific NLP tool
+        :param doc_id: id of the document
+        :param result: processed text (with error)
+        :return: -
+        """
         url = "{self.server}/api/tools/{tool}/{doc_id}".format(**locals())  # endpoint
         data = result.encode("utf-8")  # endocing
         headers = {'Content-type': ERROR_MIME}  # ERROR MIME

@@ -6,6 +6,12 @@ from nlpipe.Utils.utils import get_id
 
 class ClientInterface(object):
     """Abstract class for NLPipe client bindings"""
+    # WvA Is there a reason to have an 'interface' separate from the HTTPClient? What is the envisioned use cas
+    #     (hint: YAGNI ;-) )
+    #     There already seems a discrepancy between the interface and the implementation, i.e.
+    #         def doc_status(self, tool: str, doc_id: str) -> str: vs def status(self, module, id):
+    #     Proposal: scrap this module (and scrap the Clients package) and merge the two files?
+    #     (also, I think packages are canonically lower case in python)
 
     def process(self, module, doc, id=None, reset_error=False, reset_pending=False):
         """Add a document to be processed by module, returning the task ID

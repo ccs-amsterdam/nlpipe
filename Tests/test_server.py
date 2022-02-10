@@ -1,2 +1,3 @@
 def test_index(client):
+    # WvA this test feels very lonely! And probably doesn't pass anymore now that we have an index.html...
     assert client.get("/").status_code == 404

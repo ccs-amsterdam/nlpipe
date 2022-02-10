@@ -5,6 +5,9 @@ import datetime
 from peewee import Model, CharField, DateTimeField, TextField
 
 if 'pytest' in sys.modules.keys():  # if testing is happening
+    # WvA I know I did it like this, but not 100% sure it's the best solution
+    #     In amcat4 I now use an environment variable which I set in the conftest
+    #     https://github.com/ccs-amsterdam/amcat4/blob/master/tests/conftest.py#L10
     logging.warning("Unit testing is happening. In memory db")
     db = SqliteDatabase(":memory", pragmas={'foreign_key': 1})
 else:

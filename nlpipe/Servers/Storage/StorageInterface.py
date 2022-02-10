@@ -17,6 +17,7 @@ class StorageInterface(object):
         :return: task ID
         :rtype: str
         """
+        # WvA It's not immediately clear why this is part of the storage 'interface'?
         raise NotImplementedError()
 
     def status(self, module, id):

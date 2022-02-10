@@ -59,6 +59,8 @@ def post_task(tool):
 
     doc = request.get_data().decode('UTF-8')  # get the document
     task_id = Task.insert({'tool': tool, 'status': "PENDING"}).execute()  # adding the task to db
+    # WvA I'm not sure about the division of labour between the storage and task manager modules
+    #     Let's discuss this :)
     doc_id = app_restServer.docStorageModule.process(tool,
                                                      doc, doc_id=request.args.get("doc_ic"),  # in case it is given
                                                      task_id=task_id)  # stores the doc, and if needed generates the id
