@@ -1,0 +1,72 @@
+*.py[cod]
+
+# C extensions
+*.so
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+__pycache__
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+.coverage
+.tox
+nosetests.xml
+
+# Translations
+*.mo
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
+
+# Emacs meuk 
+*~
+\#*\#
+.\#*
+
+# Vim cruft
+*.sw[op]
+
+# PyCharm meuk
+.idea
+
+# vscode meuk
+.vscode
+
+# static files
+navigator/media/static
+static/components/
+env
+.eggs
+
+# R package library
+amcat/scripts/query/r_plugins/package_library
+
+.cache
+
+#upload cache
+*__upload_cache.json
+
+# pypi file
+MANIFEST
+
+amcat4.db
+coverage.xml
+venv/
+
