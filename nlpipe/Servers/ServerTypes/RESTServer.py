@@ -2,8 +2,6 @@ import json, logging
 from functools import wraps
 from flask import Blueprint, request, make_response, Response, jsonify
 from flask.templating import render_template
-from nlpipe.Tasks.TaskManager import TaskManager
-from nlpipe.Tasks.DatabaseTaskManager import Task
 from nlpipe.Tools.toolsInterface import UnknownModuleError, get_tool, known_tools
 from nlpipe.Servers.helpers import STATUS_CODES, ERROR_MIME, do_check_auth, LoginFailed
 
@@ -13,6 +11,7 @@ NLPipe REST Server that manages the direct filesystem access (e.g. on local mach
 app_restServer = Blueprint('app_restServer', __name__)
 app_restServer.use_auth = False  # default
 app_restServer.docStorageModule = None  # default
+app_restServer.TM = None  # task manager
 
 
 # will throw exception if not valid
@@ -59,12 +58,7 @@ def post_task(tool):
         return str(e), 404
 
     doc = request.get_data().decode('UTF-8')  # get the document
-    # task_id, doc_id = TaskManager.process()
-
-    task_id = Task.insert({'tool': tool, 'status': "STARTED"}).execute()  # adding the task to db
-    doc_id = app_restServer.docStorageModule.process(tool,
-                                                     doc, doc_id=request.args.get("doc_ic"),  # in case it is given
-                                                     task_id=task_id)  # stores the doc, and if needed generates the id
+    task_id, doc_id = app_restServer.TM.process(tool=tool, doc=doc, task_idx=None, document_idx=None)
 
     resp = Response(doc_id + "\n", status=202)  # create a response object
     resp.headers['Location'] = '/api/tools/{tool}/{doc_id}'.format(**locals())  # endpoint to access doc
@@ -82,7 +76,7 @@ def doc_status(tool, doc_id):
     :param tool: The module name
     :param doc_id: ID of the document to get status for
     """
-    status = app_restServer.docStorageModule.status(tool, doc_id)
+    status = app_restServer.TM.get_doc_status(tool=tool, doc_id=doc_id)
     resp = Response(status=STATUS_CODES[status])
     resp.headers['Status'] = status
     return resp
@@ -94,10 +88,9 @@ def task_status(task_id):
     """
     HEAD gets the status of a task as HTTP Status code.
     Response will also contain a status header.
-
     :param task_id: ID of the task to get status for
     """
-    status = Task.get(Task.id == task_id).status
+    status = app_restServer.TM.get_task_status(task_id=task_id)
     resp = Response(status=STATUS_CODES[status])
     resp.headers['Status'] = status
     return resp
@@ -117,7 +110,7 @@ def result(tool, doc_id):
     """
     return_format = request.args.get('return_format', None)
     try:
-        res = app_restServer.docStorageModule.result(tool, doc_id, return_format=return_format)
+        res = app_restServer.TM.get_result(tool=tool, doc_id=doc_id, ret_format=return_format)
     except FileNotFoundError:
         return 'Error: Unknown document: {tool}/{doc_id}\n'.format(**locals()), 404
     except Exception as e:
@@ -133,10 +126,9 @@ def get_task(tool):
     GET a task to process.
     This is intended to be called by a worker and will set status of the task to STARTED.
     Returns the text to process with HTTP headers ID and Location
-
     :param tool: tool name
     """
-    doc_id, doc = app_restServer.docStorageModule.get_task(tool)  # get the doc_id and the document
+    doc_id, doc = app_restServer.TM.get_task(tool)  # get the doc_id and the document
 
     if doc is None:  # document does not exist
         return 'Queue {tool} empty!\n'.format(**locals()), 404
@@ -161,73 +153,73 @@ def put_results(tool, doc_id):
     """
     doc = request.get_data().decode('UTF-8')
     if request.content_type == ERROR_MIME:
-        app_restServer.docStorageModule.store_error(tool, doc_id, doc)
+        app_restServer.TM.store_error(tool, doc_id, doc)
     else:
-        app_restServer.docStorageModule.store_result(tool, doc_id, doc)
+        app_restServer.TM.store_result(tool, doc_id, doc)
     return '', 204
 
 
-@app_restServer.route('/api/modules/<module>/bulk/status', methods=['POST'])
-@check_auth
-def bulk_status(module):
-    """
-    Bulk method: POST a json list of IDs to get status information from.
-    Returns a json dict of {id: status}
-
-    :param module: The module name
-    """
-    try:
-        ids = request.get_json(force=True)
-        if not ids:
-            raise ValueError("Empty request")
-    except:
-        return "Error: Please provive bulk IDs as a json list\nd ", 400
-    statuses = {id: app_restServer.docStorageModule.status(module, str(id)) for id in ids}
-    return json.dumps(statuses, indent=4), 200
-
-
-@app_restServer.route('/api/modules/<module>/bulk/result', methods=['POST'])
-@check_auth
-def bulk_result(module):
-    """
-    Bulk method: POST a json list of IDs to get results for.
-    Returns a json dict of {id: result}
-
-    :param module: The module name
-    """
-    try:
-        ids = request.get_json(force=True)
-        if not ids:
-            raise ValueError("Empty request")
-    except:
-        return "Error: Please provive bulk IDs as a json list\nd ", 400
-    format = request.args.get('format', None)
-    results = app_restServer.docStorageModule.bulk_result(module, ids, format=format)
-    return jsonify(results)
-
-
-@app_restServer.route('/api/modules/<module>/bulk/process', methods=['POST'])
-@check_auth
-def bulk_process(module):
-    """
-    Bulk method: POST a json list or {id: text} dict containing texts to process
-    Returns a json list of ids
-
-    :param module: The module name
-    """
-    reset_error = request.args.get('reset_error', False) in ('1', 'Y', 'True')
-    reset_pending = request.args.get('reset_pending', False) in ('1', 'Y', 'True')
-    try:
-        docs = request.get_json(force=True)
-        if not docs:
-            raise ValueError("Empty request")
-    except:
-        logging.exception("bulk/process: Error parsing json {}".format(repr(request.data)[:20]))
-        return "Error: Please provive bulk docs as a json list or {id:doc, } dict\n ", 400
-    if isinstance(docs, list):
-        docs, ids = docs, None
-    else:
-        docs, ids = docs.values(), docs.keys()
-    ids = app_restServer.docStorageModule.bulk_process(module, docs, ids=ids,
-                                                       reset_error=reset_error, reset_pending=reset_pending)
-    return jsonify(ids)
+# @app_restServer.route('/api/modules/<module>/bulk/status', methods=['POST'])
+# @check_auth
+# def bulk_status(module):
+#     """
+#     Bulk method: POST a json list of IDs to get status information from.
+#     Returns a json dict of {id: status}
+#
+#     :param module: The module name
+#     """
+#     try:
+#         ids = request.get_json(force=True)
+#         if not ids:
+#             raise ValueError("Empty request")
+#     except:
+#         return "Error: Please provive bulk IDs as a json list\nd ", 400
+#     statuses = {id: app_restServer.docStorageModule.status(module, str(id)) for id in ids}
+#     return json.dumps(statuses, indent=4), 200
+#
+#
+# @app_restServer.route('/api/modules/<module>/bulk/result', methods=['POST'])
+# @check_auth
+# def bulk_result(module):
+#     """
+#     Bulk method: POST a json list of IDs to get results for.
+#     Returns a json dict of {id: result}
+#
+#     :param module: The module name
+#     """
+#     try:
+#         ids = request.get_json(force=True)
+#         if not ids:
+#             raise ValueError("Empty request")
+#     except:
+#         return "Error: Please provive bulk IDs as a json list\nd ", 400
+#     format = request.args.get('format', None)
+#     results = app_restServer.docStorageModule.bulk_result(module, ids, format=format)
+#     return jsonify(results)
+#
+#
+# @app_restServer.route('/api/modules/<module>/bulk/process', methods=['POST'])
+# @check_auth
+# def bulk_process(module):
+#     """
+#     Bulk method: POST a json list or {id: text} dict containing texts to process
+#     Returns a json list of ids
+#
+#     :param module: The module name
+#     """
+#     reset_error = request.args.get('reset_error', False) in ('1', 'Y', 'True')
+#     reset_pending = request.args.get('reset_pending', False) in ('1', 'Y', 'True')
+#     try:
+#         docs = request.get_json(force=True)
+#         if not docs:
+#             raise ValueError("Empty request")
+#     except:
+#         logging.exception("bulk/process: Error parsing json {}".format(repr(request.data)[:20]))
+#         return "Error: Please provive bulk docs as a json list or {id:doc, } dict\n ", 400
+#     if isinstance(docs, list):
+#         docs, ids = docs, None
+#     else:
+#         docs, ids = docs.values(), docs.keys()
+#     ids = app_restServer.docStorageModule.bulk_process(module, docs, ids=ids,
+#                                                        reset_error=reset_error, reset_pending=reset_pending)
+#     return jsonify(ids)

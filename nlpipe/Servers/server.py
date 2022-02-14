@@ -10,8 +10,8 @@ from nlpipe.Servers.helpers import get_token
 from nlpipe.Servers.Storage.FileSystemStorage import FileSystemStorage
 from nlpipe.Tools.toolsInterface import known_tools
 from nlpipe.Workers.worker import run_workers
-
 from nlpipe.Servers.ServerTypes.RESTServer import app_restServer
+from nlpipe.Tasks.TaskManager import TaskManager
 
 app = Flask('NLP-Pipeline', template_folder=os.path.dirname(__file__))  # creating the Flask app
 CORS(app)  # cross domain access
@@ -51,8 +51,14 @@ if __name__ == '__main__':  # main thread starting, mostly reading the arguments
             tempdir = tempfile.TemporaryDirectory(prefix="nlpipe_")
             args.directory = tempdir.name
 
+    logging.debug("Creating and adding the task manager")
+    task_manager = TaskManager(app_server=app_restServer)
+    app_restServer.TM = task_manager  # add the task manager to the REST server
+
     logging.debug("Serving from {args.directory}".format(**locals()))
-    app_restServer.docStorageModule = FileSystemStorage(args.directory)  # add FileSystemStorage to the REST Server
+    app_restServer.docStorageModule = \
+        FileSystemStorage(task_manager=task_manager,
+                          result_dir=args.directory)  # add FileSystemStorage to the REST Server
 
     if args.workers is not None:
         tool_names = args.workers or [m.name for m in known_tools()]

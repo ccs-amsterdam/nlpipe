@@ -1,6 +1,4 @@
 
-W
-'nlpipe/Servers/ServerTypes/FTPServer.py,c/7/c74b6b31004e9c5b4a2ccfd0b690aa7354f83897
 N
 nlpipe/Tools/toolsInterface.py,1/d/1de9fb9d3aab810103cdbca1b45cc4e876bdd1e5
 I
@@ -13,8 +11,6 @@ E
 nlpipe/Tools/parzu.py,2/4/24f707daca11002abeeb8043224345524cb79754
 G
 nlpipe/Tools/coreNLP.py,e/a/eaa8c7530ae18780f007acfa5a6df7c990022c8e
-J
-nlpipe/Tools/test_upper.py,d/a/daf2653e6537a3b46a8b84cad099732fc6aebc9f
 S
 #.idea/sonarlint/issuestore/index.pb,9/f/9fe84ebb15faf917b7def6236dba604453cc61e0
 8
@@ -25,7 +21,13 @@ F
 setup.py,8/e/8e2edce0d507e1297474f25c00cae94258db38d8
 F
 nlpipe/Tools/gensim.py,6/1/6165ba0062e1552348f6e2d406dc812891c8fdc5
-F
-nlpipe/Tools/udpipe.py,6/7/672fad29762236023ea2b6ccc758d21130022fc6
+V
+&nlpipe/Servers/Storage/AmcatStorage.py,e/9/e9fa30bb597576122d809a69b3c90d44ad3acfa4
+D
+nlpipe/Utils/temp.py,3/6/36ca72323c59cd6605ca2a539d912a1144717978
+E
+nlpipe/Tools/spacy.py,0/3/03ba7ee0975ff449cf1803ca8c7db1429926366c
 H
-nlpipe/Tools/__init__.py,9/4/9422cccb1eb4cdb9d3513be8c3d7fdc70afbd007
+nlpipe/Workers/worker.py,4/d/4ddadd99f0d4faa84473e192c2f5987635f8c62b
+Z
+*nlpipe/Servers/Storage/StorageInterface.py,4/1/41fe2289686a84a7115814792001c262043e7092

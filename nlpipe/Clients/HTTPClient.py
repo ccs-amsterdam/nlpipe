@@ -1,6 +1,126 @@
+import time
 import requests
+import itertools
+from nlpipe.Utils.utils import get_id
 from nlpipe.Servers.helpers import ERROR_MIME
-from nlpipe.Clients.ClientInterface import ClientInterface as Client
+
+
+class Client(object):
+    """Abstract class for NLPipe client bindings"""
+
+    def process(self, tool, doc, doc_id=None, reset_error=False, reset_pending=False):
+        """Add a document to be processed by module, returning the task ID
+        :param tool: tool name
+        :param doc: A document (string)
+        :param doc_id: An optional id for the document
+        :param reset_error: Re-assign documents that have status 'ERROR'
+        :param reset_pending: Re-assign documents that have status 'PENDING'
+        :return: task ID
+        :rtype: str
+        """
+        raise NotImplementedError()
+
+    def status(self, tool, doc_id):
+        """Get processing status
+        :param tool: tool name
+        :param doc_id: document ID
+        :return: any of 'UNKNOWN', 'PENDING', 'STARTED', 'DONE', 'ERROR'
+        """
+        raise NotImplementedError()
+
+    def result(self, tool, doc_id, return_format=None):
+        """Get processing result, optionally converted to a specified format.
+        If the status is ERROR, the result will be raised as an exception
+        :param tool: tool name
+        :param doc_id: A document (string) or task ID
+        :param return_format: (Optional) format to convert to, e.g. 'xml', 'csv', 'json'
+        :return: The result of processing (string)
+        """
+        raise NotImplementedError()
+
+    def process_inline(self, tool, doc, return_format=None, doc_id=None):
+        """
+        Process the given document, use cached version if possible, wait and return result
+        :param tool: tool name
+        :param doc: A document (string)
+        :param doc_id: id of the document
+        :param return_format: optional return format (e.g., 'json')
+        :return: The result of processing (string)
+        """
+        if doc_id is None:
+            doc_id = get_id(doc)
+        if self.status(tool, doc_id) == 'UNKNOWN':
+            self.process(tool, doc, doc_id)
+        while True:
+            status = self.status(tool, doc_id)
+            if status in ('DONE', 'ERROR'):
+                return self.result(tool, doc_id, return_format=return_format)
+            time.sleep(0.1)
+
+    def get_task(self, tool):
+        """
+        Get a document to process with the given module, marking the document as 'in progress'
+        :param tool: Name of the tool
+        :return: a pair (id, string) for the document to be processed
+        """
+        raise NotImplementedError()
+
+    def get_tasks(self, tool, n):
+        """
+        Get multiple documents to process
+        :param tool: Name of the module for processing
+        :param n: Number of documents to retrieve
+        :return: a sequence of (id, document string) pairs
+        """
+        for i in range(n):
+            yield self.get_task(tool)
+
+    def store_result(self, tool, doc_id, result):
+        """
+        Store the given result
+        :param tool: tool name
+        :param doc_id: Document ID
+        :param result: Result (string)
+        """
+        raise NotImplementedError()
+
+    def store_error(self, tool, doc_id, result):
+        """
+        Store an error
+        :param tool: tool name
+        :param doc_id: Document ID
+        :param result: Result (string) describing the error
+        """
+        raise NotImplementedError()
+
+    def bulk_status(self, tool, doc_ids):
+        """Get processing status of multiple ids
+        :param tool: tool name
+        :param doc_ids: document IDs
+        :return: a dict of {id: status}
+        """
+        return {id: self.status(tool, idx) for idx in doc_ids}
+
+    def bulk_result(self, tool, doc_ids, return_format=None):
+        """Get results for multiple ids
+        :param tool: tool name
+        :param doc_ids: Task IDs
+        :return: a dict of {id: result}
+        """
+        return {id: self.result(tool, idx, return_format=format) for idx in doc_ids}
+
+    def bulk_process(self, tool, docs, doc_ids=None, **kargs):
+        """
+        Add multiple documents to the processing queue
+        :param tool:  tool name
+        :param docs: Documents to process
+        :param doc_ids: Optional sequence of explicit IDs corresponding to the documents
+        :param kargs: Additional options to pass to process
+        :return: a sequence of IDs
+        """
+        if doc_ids is None:
+            doc_ids = itertools.repeat(None)
+        return [self.process(tool, doc, doc_id=idx, **kargs) for (doc, idx) in zip(docs, doc_ids)]
 
 
 class HTTPClient(Client):

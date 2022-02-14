@@ -2,7 +2,7 @@ import logging
 import sys
 from peewee import *
 import datetime
-from peewee import Model, CharField, DateTimeField, TextField
+from peewee import Model, CharField, DateTimeField
 
 if 'pytest' in sys.modules.keys():  # if testing is happening
     logging.warning("Unit testing is happening. In memory db")
@@ -25,7 +25,7 @@ class Task(BaseModel):  # TASK table
 
 
 class Docs(BaseModel):  # DOCS table
-    doc_id = CharField(unique=True)  # id of the document, needs to be unique
+    doc_id = CharField(unique=False)  # id of the document, needs to be unique
     task_id = ForeignKeyField(Task, to_field="id")  # related task_id
     path = CharField(unique=False)  # stored location (can be local or another endpoint)
     status = CharField(unique=False)  # current status

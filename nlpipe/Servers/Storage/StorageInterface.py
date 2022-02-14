@@ -55,10 +55,11 @@ class StorageInterface(object):
                 return self.result(module, id, format=format)
             time.sleep(0.1)
 
-    def get_task(self, module):
+    def get_task(self, module, doc_id):
         """
         Get a document to process with the given module, marking the document as 'in progress'
         :param module: Name of the module
+        :doc_id: id of the document
         :return: a pair (id, string) for the document to be processed
         """
         raise NotImplementedError()
