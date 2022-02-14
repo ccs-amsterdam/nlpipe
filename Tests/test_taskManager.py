@@ -1,7 +1,7 @@
 import tempfile
 from nlpipe.Tasks.TaskManager import TaskManager
-from nlpipe.Servers.ServerTypes.RESTServer import app_restServer
-from nlpipe.Servers.Storage.FileSystemStorage import FileSystemStorage
+from nlpipe.ServerTypes.RESTServer import app_restServer
+from nlpipe.Storage.FileSystemStorage import FileSystemStorage
 from nlpipe.Tools.test_upper import TestUpper
 from nlpipe.Tasks.DatabaseTaskManager import initialize_if_needed
 

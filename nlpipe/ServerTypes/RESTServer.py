@@ -1,9 +1,8 @@
-import json, logging
 from functools import wraps
 from flask import Blueprint, request, make_response, Response, jsonify
 from flask.templating import render_template
 from nlpipe.Tools.toolsInterface import UnknownModuleError, get_tool, known_tools
-from nlpipe.Servers.helpers import STATUS_CODES, ERROR_MIME, do_check_auth, LoginFailed
+from nlpipe.helpers import STATUS_CODES, ERROR_MIME, do_check_auth, LoginFailed
 
 """
 NLPipe REST Server that manages the direct filesystem access (e.g. on local machine or over NFS)

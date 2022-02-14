@@ -1,8 +1,8 @@
 import pytest
 
-import nlpipe.Servers.server
+import nlpipe.server
 
 
 @pytest.fixture()
 def app():
-    return nlpipe.Servers.server.app
+    return nlpipe.server.app

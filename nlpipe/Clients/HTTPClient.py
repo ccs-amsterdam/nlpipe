@@ -2,7 +2,7 @@ import time
 import requests
 import itertools
 from nlpipe.Utils.utils import get_id
-from nlpipe.Servers.helpers import ERROR_MIME
+from nlpipe.helpers import ERROR_MIME
 
 
 class Client(object):
@@ -160,7 +160,7 @@ class HTTPClient(Client):
     def put(self, url, **kwargs):  # put request
         return self.request('put', url, **kwargs)
 
-    def doc_status(self, tool: str, doc_id: str) -> str:
+    def doc_status(self, tool, doc_id):
         """
         Gets the status of a document from the server. HEAD request
 
@@ -199,7 +199,6 @@ class HTTPClient(Client):
     def result(self, tool, doc_id, return_format=None):
         """
         Gets the result of the processing on the document, if specified in the return_format (e.g., json)
-
         :param tool: name of the specific NLP tool
         :param doc_id: id of the document
         :param return_format: preferred return format (e.g., json)
@@ -217,7 +216,6 @@ class HTTPClient(Client):
     def get_task(self, tool):
         """
         Get the task (in case this is called by the worker)
-
         :param tool: name of the specific NLP tool
         :return: document id, and text
         """
@@ -234,7 +232,6 @@ class HTTPClient(Client):
     def store_result(self, tool, doc_id, result):
         """
         Sends the result of the NLP processing on the document to the server
-
         :param tool: name of the specific NLP tool
         :param doc_id: id of the document
         :param result: processed text
@@ -250,13 +247,12 @@ class HTTPClient(Client):
 
     def store_error(self, tool, doc_id, result):
         """
-                Sends the error of the NLP processing on the document to the server
-
-                :param tool: name of the specific NLP tool
-                :param doc_id: id of the document
-                :param result: processed text (with error)
-                :return: -
-                """
+        Sends the error of the NLP processing on the document to the server
+        :param tool: name of the specific NLP tool
+        :param doc_id: id of the document
+        :param result: processed text (with error)
+        :return: -
+        """
         url = "{self.server}/api/tools/{tool}/{doc_id}".format(**locals())  # endpoint
         data = result.encode("utf-8")  # endocing
         headers = {'Content-type': ERROR_MIME}  # ERROR MIME

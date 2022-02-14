@@ -1,11 +1,7 @@
-import os.path
-import errno
 import logging, requests
-import subprocess
-from nlpipe.Tasks.DatabaseTaskManager import Docs
-from nlpipe.Utils.utils import STATUS, get_id
-from nlpipe.Tools.toolsInterface import get_tool, get_known_tools
-from nlpipe.Servers.Storage.StorageInterface import StorageInterface
+from nlpipe.Tools.toolsInterface import get_known_tools
+from nlpipe.Storage.StorageInterface import StorageInterface
+
 
 class AmcatStorage(StorageInterface):
     """

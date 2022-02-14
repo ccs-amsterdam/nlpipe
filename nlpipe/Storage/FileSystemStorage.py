@@ -4,7 +4,7 @@ import logging
 import subprocess
 from nlpipe.Tools.toolsInterface import get_tool, get_known_tools
 from nlpipe.Utils.utils import STATUS, get_id
-from nlpipe.Servers.Storage.StorageInterface import StorageInterface
+from nlpipe.Storage.StorageInterface import StorageInterface
 
 
 class FileSystemStorage(StorageInterface):
@@ -83,7 +83,6 @@ class FileSystemStorage(StorageInterface):
     def result(self, tool, doc_id, return_format=None):
         """
         Returns the results of processing (via the NLP tool) on the document
-
         :param tool: specific NLP tool (e.g., TEST_UPPER)
         :param doc_id: id of the document
         :param return_format: return format (e.g., json)
@@ -121,7 +120,6 @@ class FileSystemStorage(StorageInterface):
     def store_result(self, tool, doc_id, result):
         """
         Stores the results of applying the tool to the document
-
         :param tool: name of the tool
         :param doc_id: id of the document
         :param result: processed text

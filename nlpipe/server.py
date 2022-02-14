@@ -6,11 +6,11 @@ import tempfile
 from flask import Flask
 from flask_cors import CORS
 from nlpipe.Tasks.DatabaseTaskManager import initialize_if_needed
-from nlpipe.Servers.helpers import get_token
-from nlpipe.Servers.Storage.FileSystemStorage import FileSystemStorage
+from nlpipe.helpers import get_token
+from nlpipe.Storage.FileSystemStorage import FileSystemStorage
 from nlpipe.Tools.toolsInterface import known_tools
 from nlpipe.Workers.worker import run_workers
-from nlpipe.Servers.ServerTypes.RESTServer import app_restServer
+from nlpipe.ServerTypes.RESTServer import app_restServer
 from nlpipe.Tasks.TaskManager import TaskManager
 
 app = Flask('NLP-Pipeline', template_folder=os.path.dirname(__file__))  # creating the Flask app
