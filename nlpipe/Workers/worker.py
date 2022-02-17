@@ -121,6 +121,10 @@ if __name__ == '__main__':
     parser.add_argument("--max_num_topics", help="Optional maximum number of topics", type=str, default=4)
     parser.add_argument("--model_scoring", help="Optional scoring topic models", type=str, default="u_mass")
 
+    # for portulan
+    parser.add_argument("--portulan_key", help="Mandatory for Portulan: API key", type=str, default=None)
+    parser.add_argument("--portulan_tagset", help="Optional tagset for Portulan", type=str, default="UD")
+
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO,
