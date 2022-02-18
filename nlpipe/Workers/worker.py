@@ -17,10 +17,11 @@ class Worker(Process):
     request the document, process the documents, and post the results back on the server.
     """
 
-    sleep_timeout = 5  # check the tasks every 5 seconds
+    sleep_timeout = 5  # check the tasks every 3 seconds
 
     def __init__(self, client, tool, args=None, quit=False):
         """
+        init function for worker class
         :param client: a Client object to connect to the NLP Server (e.g., HTTP Client)
         :param tool: The module to perform work on
         :param quit: if True, quit if no jobs are found; if False, poll server every second.
@@ -32,18 +33,22 @@ class Worker(Process):
         self.quit = quit
 
     def run(self):
+        """
+        Check the server every sleep_timeout seconds for a new task assigned to it
+        If there are tasks, sends the document to the tool.process() and stores the results
+        """
         while True:
             doc_id, doc = self.client.get_task(self.tool.name)
             if doc_id is None:
                 if self.quit:
                     logging.info("No jobs for {self.tool.name}, quitting!".format(**locals()))
                     break
-                time.sleep(self.sleep_timeout)
+                time.sleep(self.sleep_timeout)  # sleep and check again for a new task
                 continue
             logging.info("Received task {self.tool.name}/{doc_id} ({n} bytes)".format(n=len(doc), **locals()))
             try:
-                result = self.tool.process(doc, additional_arguments=self.arguments)
-                self.client.store_result(self.tool.name, doc_id, result)
+                result = self.tool.process(doc, additional_arguments=self.arguments)  # process the new task
+                self.client.store_result(self.tool.name, doc_id, result)  # store teh results
                 logging.debug("Successfully completed task {self.tool.name}/{doc_id} ({n} bytes)"
                               .format(n=len(result), **locals()))
             except Exception as e:
@@ -69,7 +74,7 @@ def run_workers(client: Client, tools: Iterable[str], nprocesses: int = 1, quit:
     :param client: a nlpipe.Clients.ClientInterface object
     :param tools: names of the tools (tools name or fully qualified class name)
     :param nprocesses: Number of processes per tool
-    :param quit: If True, workers stop when no jobs are present; if False, they poll the server every second.
+    :param quit: If True, workers stop when no jobs are present; if False, they poll the server every second
     :param additional_arguments: other arguments passed in
     """
     # import built-in workers
@@ -105,25 +110,38 @@ if __name__ == '__main__':
                                               "(default reads ./.nlpipe_token or NLPIPE_TOKEN")
 
     # for udpipe or spacy
-    parser.add_argument("--language_model", "-L", help="Optional language model", type=str)
-    parser.add_argument("--field", help="Optional requested field from parser (e.g.: pos_", type=str)
+    parser.add_argument("--language_model", "-L", help="(Mandatory for spaCy/udpipe) language model", type=str)
+    parser.add_argument("--field", help="(Mandatory for spaCy/udpipe) requested field from parser (e.g.: pos_", type=str)
 
     # for gensim embedding
-    parser.add_argument("--embedding_method", help="Optional embedding method", type=str)
+    parser.add_argument("--embedding_method", help="(Mandatory for gensim embedding) embedding method", type=str)
 
     # for gensim topic modelling
-    parser.add_argument("--min_count", help="Optional min_count for phrases", type=str, default=5)
-    parser.add_argument("--threshold", help="Optional threshold for phrases", type=str, default=1)
-    parser.add_argument("--no_below", help="Optional minimum occurrence for rare words", type=str, default=50)
-    parser.add_argument("--no_above", help="Optional maximum portion for common words", type=str, default=0.3)
-    parser.add_argument("--devsize", help="Optional number of documents in corpus to use", type=str, default=10000)
-    parser.add_argument("--min_num_topics", help="Optional minimum number of topics", type=str, default=2)
-    parser.add_argument("--max_num_topics", help="Optional maximum number of topics", type=str, default=4)
-    parser.add_argument("--model_scoring", help="Optional scoring topic models", type=str, default="u_mass")
+    parser.add_argument("--min_count",
+                        help="(Optional for gensim topic modelling) min_count for phrases", type=str, default=5)
+    parser.add_argument("--threshold",
+                        help="(Optional for gensim topic modelling) threshold for phrases", type=str, default=1)
+    parser.add_argument("--no_below",
+                        help="(Optional for gensim topic modelling) minimum occurrence for rare words",
+                        type=str, default=50)
+    parser.add_argument("--no_above",
+                        help="(Optional for gensim topic modelling) maximum portion for common words",
+                        type=str, default=0.3)
+    parser.add_argument("--devsize",
+                        help="(Optional for gensim topic modelling) number of documents in corpus to use",
+                        type=str, default=10000)
+    parser.add_argument("--min_num_topics",
+                        help="(Optional for gensim topic modelling) minimum number of topics", type=str, default=2)
+    parser.add_argument("--max_num_topics",
+                        help="(Optional for gensim topic modelling) maximum number of topics", type=str, default=4)
+    parser.add_argument("--model_scoring",
+                        help="(Optional for gensim topic modelling) scoring topic models", type=str, default="u_mass")
 
     # for portulan
-    parser.add_argument("--portulan_key", help="Mandatory for Portulan: API key", type=str, default=None)
-    parser.add_argument("--portulan_tagset", help="Optional tagset for Portulan", type=str, default="UD")
+    parser.add_argument("--portulan_key", help="(Mandatory for portulan) for Portulan: API key",
+                        type=str, default=None)
+    parser.add_argument("--portulan_tagset", help="(Mandatory for portulan) tagset for Portulan",
+                        type=str, default="UD")
 
     args = parser.parse_args()
 

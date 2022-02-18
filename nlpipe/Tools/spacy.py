@@ -19,9 +19,20 @@ class SpaCy(Tool):
         pass
 
     def process(self, text, additional_arguments):
+        """
+        Process the text document. Called by worker
+        :param text: text to be processed
+        :param additional_arguments: additional arguments for the spacy model
+        :param additional_arguments.language_model: language model used for spacy
+        :param additional_arguments.field: in case there is a specific filed to be returned
+        :return: processed text
+        """
         return _call_spacy(text=text, lm=additional_arguments.language_model, field=additional_arguments.field)
 
     def convert(self, doc_id, result, return_format):
+        """
+        Convert the processed document to the requested return format
+        """
         if return_format == "json":
             return json.dumps({"doc_id": doc_id, "status": "OK", "result": result})
         super().convert(result, return_format)
@@ -30,6 +41,9 @@ class SpaCy(Tool):
 def _call_spacy(text, lm, field=None):
     """
     Call spacy on the text and return annotations
+    :param text: text to be processed
+    :param lm: language model
+    :param field: specific field to be returned
     """
 
     logging.debug("downloading and loading the language model {lm}".format(**locals()))
@@ -39,10 +53,13 @@ def _call_spacy(text, lm, field=None):
     logging.debug("Creating spacy_udpipe object")
     doc = nlp(text)
 
-    return generate_cvs_format(doc, field)
+    return generate_cvs_format(doc, field)  # generate csv format
 
 
 def check_language_model(lm):
+    """
+    Check (and if needed download) the language model
+    """
     if not spacy.util.is_package(lm):
         subprocess.check_call([sys.executable, "-m", "spacy", "download", lm])
 

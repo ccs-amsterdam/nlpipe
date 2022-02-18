@@ -1,6 +1,5 @@
 """
 wrapper around Gensim
-
 Gensim is designed to process raw, unstructured digital texts (“plain text”) using unsupervised machine learning
 algorithms.
 The algorithms in Gensim, such as Word2Vec, FastText, Latent Semantic Indexing (LSI, LSA, LsiModel),
@@ -13,8 +12,7 @@ from nlpipe.Tools.toolsInterface import Tool
 from gensim.models import LdaMulticore, TfidfModel, CoherenceModel, Word2Vec, FastText, Doc2Vec
 from gensim.corpora import Dictionary  # create the dictionary/vocabulary from the data
 from gensim.models.phrases import Phrases
-from gensim.utils import tokenize
-import multiprocessing  # to speed things up by parallelizing
+import multiprocessing  # to speed things up by parallelize
 import json
 import logging
 import csv
@@ -31,6 +29,9 @@ class Gensim(Tool):
         pass
 
     def set_args(self, additional_arguments):
+        """
+        Set the required arguments for gensim
+        """
         self.args = {
             'min_count': additional_arguments.min_count,
             'threshold': additional_arguments.threshold,
@@ -43,10 +44,13 @@ class Gensim(Tool):
         }
 
     def process(self, text, additional_arguments):
-        if hasattr(additional_arguments, "embedding_method"):
+        """
+        Process the text document
+        """
+        if hasattr(additional_arguments, "embedding_method"):  # returns embeddings for each token
             model = get_word_embeddings(text, method=additional_arguments.embedding_method)
             return generate_csv_format(np.column_stack((model.wv.vectors, model.wv.index_to_key)))
-        else:
+        else:  # topic modelling
             self.set_args(additional_arguments)
             return _call_gensim(text, self.args)
 
@@ -60,24 +64,23 @@ def _call_gensim(text, args):
     """
     Call gensim on the text and return list of topics and 10 frequent words for each
     """
-
     logging.debug("Generating tokens from the cleaned text")
-    if isinstance(text, list):
+    if isinstance(text, list):  # if case of corpora
         instances = [t.split() for t in text]
-    elif isinstance(text, str):
+    elif isinstance(text, str):  # in case of a body of text
         instances = [text.split()]
 
     logging.debug("Generating collocations from the tokens, "
                   "with min_count={min_count} and "
                   "threshold={threshold}".format(min_count=args['min_count'], threshold=args['threshold']))
-    phrases = Phrases(instances,
+    phrases = Phrases(instances,  # find phrases
                       min_count=args["min_count"],
                       threshold=args["threshold"])
-    instances_colloc = phrases[instances]
+    instances_colloc = phrases[instances]  # create useful colloc from the text
 
     logging.debug("Creating a dictionary from the collocations, and getting rid of rare of infrequent words")
     dictionary = Dictionary(instances_colloc)
-    # dictionary.filter_extremes(args["no_below"], args["no_above"])
+    # dictionary.filter_extremes(args["no_below"], args["no_above"])  # remove words, not useful for small text
 
     logging.debug("Translating corpus to IDs, and creating a if-idf tranformation")
     ldacorpus = [dictionary.doc2bow(text) for text in instances_colloc]

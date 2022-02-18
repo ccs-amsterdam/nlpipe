@@ -63,7 +63,7 @@ class FileSystemStorage(StorageInterface):
         :param doc_status: status of the document
         :param reset_error: --
         :param reset_pending: --
-        :return:å
+        :return: doc_id, filename
         """
         if doc_id is None:
             doc_id = get_id(tool, doc)  # generate a doc_id based on md5 hash
@@ -133,7 +133,6 @@ class FileSystemStorage(StorageInterface):
     def store_error(self, tool, doc_id, result):
         """
         Stores the results of applying the tool to the document, in case there was an error
-
         :param tool: name of the specific NLP tool
         :param doc_id: id of the document
         :param result: result of applying the tool to the document

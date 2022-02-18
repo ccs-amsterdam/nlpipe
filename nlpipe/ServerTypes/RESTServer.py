@@ -13,8 +13,7 @@ app_restServer.docStorageModule = None  # default
 app_restServer.TM = None  # task manager
 
 
-# will throw exception if not valid
-def check_auth(f):
+def check_auth(f):  # will throw exception if not valid
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if app_restServer.use_auth:
@@ -48,7 +47,6 @@ def post_task(tool):
     Post body should contain the text/doc to process.
     You can specify an explicit document id with ?id=<id>
     Response will be an empty HTTP 202 response with Location and ID headers
-
     :param tool: The name of the tool to process with
     """
     try:
@@ -71,7 +69,7 @@ def post_task(tool):
 def doc_status(tool, doc_id):
     """
     HEAD gets the status of a document as HTTP Status code.
-    Response will also contain a status header.
+    Response will also contain a status header
     :param tool: The module name
     :param doc_id: ID of the document to get status for
     """
@@ -86,7 +84,7 @@ def doc_status(tool, doc_id):
 def task_status(task_id):
     """
     HEAD gets the status of a task as HTTP Status code.
-    Response will also contain a status header.
+    Response will also contain a status header
     :param task_id: ID of the task to get status for
     """
     status = app_restServer.TM.get_task_status(task_id=task_id)
@@ -103,7 +101,6 @@ def result(tool, doc_id):
     If processed OK, returns the result as document with HTTP 200
     If processing failed, returns HTTP 500 with a json document containing the exception
     If task is unknown or not yet processed, will return 404
-
     :param tool: The tool name
     :param doc_id: ID of the task to get result for
     """
@@ -123,7 +120,7 @@ def result(tool, doc_id):
 def get_task(tool):
     """
     GET a task to process.
-    This is intended to be called by a worker and will set status of the task to STARTED.
+    This is intended to be called by a worker and will set status of the task to STARTED
     Returns the text to process with HTTP headers ID and Location
     :param tool: tool name
     """
@@ -144,8 +141,7 @@ def put_results(tool, doc_id):
     """
     PUT the results of processing.
     If processing failed, use Content-type: prs.error+text and put the error message or diagnostics
-    This is intended to be called by a worker and will set the status of the task to DONE or ERROR.
-
+    This is intended to be called by a worker and will set the status of the task to DONE or ERROR
     :param tool: name of the tool
     :param doc_id: id of the document
     :return:

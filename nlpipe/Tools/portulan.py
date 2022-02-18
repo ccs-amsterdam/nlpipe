@@ -20,6 +20,10 @@ class Portulan(Tool):
     url = "https://portulanclarin.net/workbench/lx-depparser/api/"
 
     def check_portulan(self, key):
+        """
+        Check if the portulan service is running
+        :param key: API key (mandatory)
+        """
         request_data = {
             'method': 'key_status',
             'jsonrpc': '2.0',
@@ -40,8 +44,13 @@ class Portulan(Tool):
         pass
 
     def process(self, text, additional_arguments):
-        if hasattr(additional_arguments, "portulan_key"):
-            if hasattr(additional_arguments, "portulan_tagset"):
+        """
+        Process the text document. Called by worker
+        :param text: text to be processed
+        :param additional_arguments: additional arguments for the portulan
+        """
+        if hasattr(additional_arguments, "portulan_key"):  # API key
+            if hasattr(additional_arguments, "portulan_tagset"):  # tagset (what to be processed in text)
                 return _call_portulan(url=self.url, text=text, key=additional_arguments.portulan_key,
                                       tagset=additional_arguments.portulan_tagset)
             else:
@@ -97,9 +106,4 @@ def generate_csv_format(doc):
 
 Portulan.register()  # register the tool in known_tools
 
-
-# if __name__ == '__main__':
-#     url = "https://portulanclarin.net/workbench/lx-depparser/api/"
-#     key = "8f4b0c06afccc745946de9edfabf79b2"
-#     print(_call_portulan(url, "This is a test", key, "UD", 'JSON'))
 

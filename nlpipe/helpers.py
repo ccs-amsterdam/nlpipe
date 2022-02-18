@@ -5,8 +5,7 @@ import socket
 from flask import request
 
 
-# status code for each document
-STATUS_CODES = {
+STATUS_CODES = {  # status code for each document
     'UNKNOWN': 404,
     'PENDING': 202,
     'STARTED': 202,
@@ -17,8 +16,7 @@ ERROR_MIME = 'application/prs.error+text'
 SECRET_KEY = None  # secret key for creating authentication tokens
 
 
-# handling failed login event
-class LoginFailed(Exception):
+class LoginFailed(Exception):  # handling failed login event
     pass
 
 
@@ -35,8 +33,7 @@ def do_check_auth():  # perform authentication
         raise LoginFailed("Invalid token") from e
 
 
-def _secret_key():
-    # Generating/creating secret key for the authentication token
+def _secret_key():  # Generating/creating secret key for the authentication token
     global SECRET_KEY
     if SECRET_KEY is None:
         hostid = os.popen("hostid").read().strip()
@@ -45,8 +42,7 @@ def _secret_key():
     return SECRET_KEY
 
 
-def get_token():
-    # Generating authentication tokens
+def get_token():  # Generating authentication tokens
     payload = {
         'version': 1,
         'iat': datetime.datetime.utcnow(),

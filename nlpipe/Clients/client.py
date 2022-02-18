@@ -8,7 +8,6 @@ from nlpipe.Clients.HTTPClient import HTTPClient
 def get_client(server_name, token=None):
     """
     Returns a client (for now only HTTP client)
-
     :param server_name: address of the server (URL)
     :param token: authentication token
     :return: initialized HTTP client

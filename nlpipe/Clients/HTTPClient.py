@@ -9,7 +9,7 @@ class Client(object):
     """Abstract class for NLPipe client bindings"""
 
     def process(self, tool, doc, doc_id=None, reset_error=False, reset_pending=False):
-        """Add a document to be processed by module, returning the task ID
+        """Add a document to be processed by tool, returning the task ID
         :param tool: tool name
         :param doc: A document (string)
         :param doc_id: An optional id for the document
@@ -59,7 +59,7 @@ class Client(object):
 
     def get_task(self, tool):
         """
-        Get a document to process with the given module, marking the document as 'in progress'
+        Get a document to process with the given tool, marking the document as 'in progress'
         :param tool: Name of the tool
         :return: a pair (id, string) for the document to be processed
         """
@@ -68,7 +68,7 @@ class Client(object):
     def get_tasks(self, tool, n):
         """
         Get multiple documents to process
-        :param tool: Name of the module for processing
+        :param tool: Name of the tool for processing
         :param n: Number of documents to retrieve
         :return: a sequence of (id, document string) pairs
         """
