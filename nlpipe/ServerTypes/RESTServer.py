@@ -34,7 +34,7 @@ def check_token(token):
 @app_restServer.route('/')
 def index():
     fsdir = app_restServer.docStorageModule.result_dir
-    mods = sorted(known_tools(), key=lambda mod: mod.name)
+    mods = sorted(known_tools.values(), key=lambda mod: mod.name)
     mods = {mod: dict(app_restServer.docStorageModule.statistics(mod.name)) for mod in mods}
     return render_template('index.html', **locals())
 

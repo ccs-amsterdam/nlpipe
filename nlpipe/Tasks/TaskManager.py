@@ -41,7 +41,7 @@ class TaskManager:
         return task_idx, document_idx
 
     @staticmethod
-    def get_doc_status(doc_id):
+    def get_doc_status(doc_id, tool=None):
         """
         Returns the document status
         """

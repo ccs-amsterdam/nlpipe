@@ -26,7 +26,8 @@ class Udpipe(Tool):
         :param text: text to be processed
         :param additional_arguments: additional arguments for the udpipe model
         """
-        return _call_udpipe(text, lm=additional_arguments.language_model)
+        lm = additional_arguments.language_model or 'en'
+        return _call_udpipe(text, lm=lm)
 
     def convert(self, doc_id, result, return_format):
         """

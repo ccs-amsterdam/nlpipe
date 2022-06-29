@@ -27,7 +27,8 @@ class SpaCy(Tool):
         :param additional_arguments.field: in case there is a specific filed to be returned
         :return: processed text
         """
-        return _call_spacy(text=text, lm=additional_arguments.language_model, field=additional_arguments.field)
+        lm = additional_arguments.language_model or 'en_core_web_sm'
+        return _call_spacy(text=text, lm=lm, field=additional_arguments.field)
 
     def convert(self, doc_id, result, return_format):
         """
